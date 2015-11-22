@@ -1,0 +1,23 @@
+{
+  "name": "oli2backend",
+  "description": "Backend for the stand-along Oligrapher app",
+  "main": "src/server.js",
+  "authors": [
+    "Friedrich Lindenberg <friedrich@pudo.org>"
+  ],
+  "license": "MIT",
+  "moduleType": [
+    "globals"
+  ],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.5"
+  }
+}

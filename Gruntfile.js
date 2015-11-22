@@ -19,6 +19,7 @@ module.exports = function(grunt) {
         },
         files: {
           'ui/build/deps.min.js': [
+            
           ]
         }
       }
