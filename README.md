@@ -25,7 +25,12 @@ $ node src/server.js
 
 ## API
 
-* /auth/facebook - begin oauth authorization
-* /auth/logout - end a user session
-* /auth/session - get the current session
-* /api/maps - list available maps
+* GET /auth/facebook - begin oauth authorization
+* GET /auth/logout - end a user session
+* GET /api/session - get the current session
+* GET /api/maps - list available maps
+* GET /api/maps/:id - get a full map
+* POST /api/maps - create a new map (need to be signed in)
+* POST /api/maps/:id - update a map (need to be creator)
+
+For POST requests, the ``title`` property is required.
