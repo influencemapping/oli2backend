@@ -12,11 +12,20 @@ $ npm install
 $ bower install
 ```
 
+The following environment variables are required to be set:
+
+* SECRET_KEY with a random string. 
+* FACEBOOK_APP_ID and FACEBOOK_APP_SECRET from https://developers.facebook.com/apps/
+
 Run in development via:
 
 ```bash
-$ grunt dev
+$ node src/server.js
 ```
 
 ## API
 
+* /auth/facebook - begin oauth authorization
+* /auth/logout - end a user session
+* /auth/session - get the current session
+* /api/maps - list available maps
