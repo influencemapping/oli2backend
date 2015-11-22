@@ -1,0 +1,6 @@
+.DS_Store
+.env
+node_modules/
+bower_components/
+data/*
+ui/build/*.map
