@@ -16,6 +16,7 @@ The following environment variables are required to be set:
 
 * SECRET_KEY with a random string. 
 * FACEBOOK_APP_ID and FACEBOOK_APP_SECRET from https://developers.facebook.com/apps/
+* MONGOLAB_URI for the MongoDB URI.
 
 Run in development via:
 

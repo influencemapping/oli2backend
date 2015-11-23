@@ -14,6 +14,7 @@ var app = express(),
 app.set('port', (process.env.PORT || 3000));
 
 app.use(express.static('ui'));
+
 app.use(bodyParser.json());
 app.use(session({
   store: new MongoStore({url: mongoUri}),
