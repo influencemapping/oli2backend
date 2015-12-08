@@ -12,8 +12,11 @@
   "dependencies": {
     "body-parser": "^1.14.1",
     "connect-mongo": "^0.8.2",
+    "cors": "^2.7.1",
+    "ejs": "^2.3.4",
     "express": "^4.13.3",
     "express-session": "^1.12.1",
+    "moment": "^2.10.6",
     "mongodb": "^2.0.49",
     "passport": "^0.3.2",
     "passport-facebook": "^2.0.0",

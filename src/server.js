@@ -5,7 +5,8 @@ var MongoClient = require('mongodb').MongoClient,
     bodyParser = require('body-parser'),
     session = require('express-session'),
     ObjectID = require('mongodb').ObjectID,
-    MongoStore = require('connect-mongo')(session);
+    MongoStore = require('connect-mongo')(session),
+    cors = require('cors'),
     _ = require("underscore");
 
 var app = express(),
@@ -14,6 +15,7 @@ var app = express(),
 app.set('port', (process.env.PORT || 3000));
 
 app.use(express.static('ui'));
+app.set('view engine', 'ejs');
 
 app.use(bodyParser.json());
 app.use(session({
@@ -34,11 +36,17 @@ app.use(function(req, res, next) {
   });
 });
 
+app.use(cors({
+  origin: function(origin, callback) {
+    callback(null, true);
+  },
+  credentials: true
+}));
 
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "http://localhost:3000/auth/facebook/callback"
+    callbackURL: "http://localhost:" + app.get('port') + "/auth/facebook/callback"
   },
   function(accessToken, refreshToken, profile, done) {
     done(null, {
@@ -62,9 +70,12 @@ passport.deserializeUser(function(user, done) {
 app.get('/auth/facebook', passport.authenticate('facebook'));
 
 
-app.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { successRedirect: '/',
-                                      failureRedirect: '/' }));
+app.get('/auth/facebook/callback', 
+  passport.authenticate('facebook'),
+  function(req, res) {
+    res.redirect(req.headers.referer || '/');
+  }  
+);
 
 
 app.get('/auth/logout', function(req, res){
@@ -100,25 +111,28 @@ var convertMap = function(map) {
   return map;
 }
 
-
-app.get('/api/maps', function (req, res) {
-  var q = req.maps.find().project({title: 1, author: 1, _id: 1, created_at: 1, updated_at: 1});
+var loadMaps = function(req, callback) {
+  var q = req.maps.find().project({title: 1, user: 1, _id: 1, created_at: 1, updated_at: 1});
   q.toArray(function(err, maps) {
-    for (var i in maps) {
-      maps[i] = convertMap(maps[i]);
-    }
-    res.json({'maps': maps});  
+    callback(maps.map(function(map) { return convertMap(map); }));
+  });
+}
+
+app.get('/api/maps', function(req, res) {
+  loadMaps(req, function(maps) {
+    res.json({'maps': maps});
   });
 });
 
+app.options('api/maps'); // CORS pre-flight
 
-app.post('/api/maps', function (req, res) {
+app.post('/api/maps', function(req, res) {
   if (!req.user) {
     return res.status(403).json({'error': 'You must be signed in to create maps'});
   }
   var data = req.body;
   data._id = new ObjectID();
-  data.author = req.user;
+  data.user = req.user;
   data.created_at = new Date();
   data.updated_at = new Date();
   if (data.id) { delete data.id; }
@@ -134,21 +148,22 @@ app.post('/api/maps', function (req, res) {
 });
 
 
-app.get('/api/maps/:id', function (req, res) {
+app.get('/api/maps/:id', function(req, res) {
   loadMap(req, res, function(map) {
     res.json(convertMap(map));
   });
 });
 
+app.options('api/maps/:id'); // CORS pre-flight
 
-app.post('/api/maps/:id', function (req, res) {
+app.post('/api/maps/:id', function(req, res) {
   loadMap(req, res, function(map) {
-    if (!req.user || req.user.id != map.author.id) {
+    if (!req.user || req.user.id != map.user.id) {
       return res.status(403).json({'error': 'You cannot edit this map'});
     }
     var data = _.extend({}, map, req.body);
     data.updated_at = new Date();
-    data.author = req.user;
+    data.user = req.user;
     if (data.id) { delete data.id; }
     if (!data.title) {
       return res.status(400).json({'error': 'Missing a title'});
@@ -165,6 +180,25 @@ app.post('/api/maps/:id', function (req, res) {
   });
 });
 
+app.get('/', function(req, res) {
+  loadMaps(req, function(maps) {
+    res.render('index', { maps: maps, user: req.user });
+  })
+});
+
+app.get('/maps/new', function(req, res) {
+  if (!req.user) {
+    return res.status(500).json({'error': "You must sign in to create a new map."});
+  }
+  res.render('newMap', { user: req.user });
+});
+
+app.get('/maps/:id', function(req, res) {
+  loadMap(req, res, function(map) {
+    var isOwner = (req.user && req.user.id == map.user.id);
+    res.render('showMap', { map: convertMap(map), isOwner: isOwner });
+  });
+});
 
 app.use(function(req, res, next) {
   req.db.close();

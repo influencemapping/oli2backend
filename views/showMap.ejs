@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8"/><meta charset="UTF-8">
+    <title>Oligrapher 2</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/oligrapher/oligrapher.css" rel="stylesheet"/>
+    <link href="/oligrapher/oligrapher.editor.css" rel="stylesheet"/>
+    <link href="/oligrapher/oligrapher.annotations.css" rel="stylesheet"/>
+    <script src="/oligrapher/oligrapher.min.js"></script>
+    <script src="/oligrapher/oligrapher.editor.min.js"></script>
+    <script src="/oligrapher/oligrapher.annotations.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="/oligrapher/GoogleSheetDataSource.js"></script>
+    <script src="/moment.min.js"></script>
+  </head>
+  <body>
+    <div id="annotations"></div>
+    <script>
+      var root = document.getElementById('annotations');
+      root.style.height = window.innerHeight - 120 + "px";
+
+      var data = <%- JSON.stringify(map) %>;
+
+      var nodesUrl = 'https://docs.google.com/spreadsheets/d/1BY_puUyDz9wGuM_QG0v85LDQ1f42qUn36FqUUIYQrl4/pub?gid=862456579&single=true&output=csv';
+      var edgesUrl = 'https://docs.google.com/spreadsheets/d/1BY_puUyDz9wGuM_QG0v85LDQ1f42qUn36FqUUIYQrl4/pub?gid=1805752140&single=true&output=csv';
+      var source = GoogleSheetDataSource(nodesUrl, edgesUrl);
+      source.name = "TTIP network data";
+
+      var isEditor = false;
+
+      var oliAnnotations = new OligrapherAnnotations({
+        domRoot: root,
+        oligrapher: Oligrapher,
+        title: data.title,
+        graphData: data.graph,
+        annotationsData: data.annotations,
+        user: { name: data.user.name },
+        date: moment(data.created_at).format('MMMM D, YYYY'),
+        startIndex: 0,
+        isEditor: isEditor,
+        editor: OligrapherEditor,
+        dataSource: source,
+        links: [
+          <% if (isOwner) { %>
+          { text: "home", url: "/", target: "_self" },
+          { id: "editLink", text: "edit" }
+          <% } %>
+        ],
+        <% if (isOwner) { %>
+        onSave: function(data) { 
+          if (!data.title) {
+            alert("You must give this map a title before saving.");
+            return;
+          }
+
+          var url = 'http://localhost:9000/api/maps/<%= map.id %>';
+          $.ajax({
+            url: url,
+            method: 'POST',
+            xhrFields: {
+              withCredentials: true
+            },
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function(resp) {
+              alert("Map was successfully saved.");
+              console.log(resp);
+            },
+            error: function(resp) {
+              alert("Couldn't save map!");
+              console.log(resp)
+            }
+          });
+        }
+        <% } %>
+      });
+
+      $('#editLink').on('click', function() {
+        oliAnnotations.toggleEditor();
+      });
+    </script>
+  </body>
+</html>
+

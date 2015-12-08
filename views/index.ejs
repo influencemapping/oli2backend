@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Oligrapher 2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700|Special+Elite' rel='stylesheet' type='text/css'>
+  <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
+  <link href="style.css" rel="stylesheet">
+</head>
+<body>
+  <base href="/">
+
+  <h1>
+    Maps
+    <% if (user) { %>
+    &nbsp;<a href="/maps/new" class="btn btn-default btn-sm">New</a>
+    <% } else { %> 
+    &nbsp;<a href="/auth/facebook" class="btn btn-default btn-sm">Login</a>
+    <% } %>
+  </h1>
+
+  <table class="table">
+    <tr>
+      <th>Title</th>
+      <th>User</tH>
+      <th>Date</th>
+    </tr>
+  <% maps.forEach(function(map) { %>
+    <tr>
+      <td><a href="/maps/<%= map.id %>"><%= map.title %></a></td>
+      <td><%= map.user.name %></td>
+      <td><%= map.created_at %></td>
+    </tr>
+  <% }) %>
+  </table>
+
+</body>
+</html>
