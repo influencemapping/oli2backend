@@ -54,7 +54,7 @@
             return;
           }
 
-          var url = 'http://localhost:9000/api/maps/<%= map.id %>';
+          var url = '/api/maps/<%= map.id %>';
           $.ajax({
             url: url,
             method: 'POST',
