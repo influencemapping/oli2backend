@@ -46,7 +46,7 @@ app.use(cors({
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: "http://localhost:" + app.get('port') + "/auth/facebook/callback"
+    callbackURL: process.env.OLIGRAPHER_HOST + "/auth/facebook/callback"
   },
   function(accessToken, refreshToken, profile, done) {
     done(null, {
