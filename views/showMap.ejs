@@ -42,8 +42,8 @@
         editor: OligrapherEditor,
         dataSource: source,
         links: [
-          <% if (isOwner) { %>
           { text: "home", url: "/", target: "_self" },
+          <% if (isOwner) { %>
           { id: "editLink", text: "edit" }
           <% } %>
         ],
