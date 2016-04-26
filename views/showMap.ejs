@@ -4,20 +4,16 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8"/><meta charset="UTF-8">
     <title>Oligrapher 2</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="/oligrapher/oligrapher.css" rel="stylesheet"/>
-    <link href="/oligrapher/oligrapher.editor.css" rel="stylesheet"/>
-    <link href="/oligrapher/oligrapher.annotations.css" rel="stylesheet"/>
-    <script src="/oligrapher/oligrapher.min.js"></script>
-    <script src="/oligrapher/oligrapher.editor.min.js"></script>
-    <script src="/oligrapher/oligrapher.annotations.min.js"></script>
+    <link href="/style.css" rel="stylesheet"/>
+    <script src="/oligrapher2/build/oligrapher.min.js"></script>
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="/oligrapher/GoogleSheetDataSource.js"></script>
     <script src="/moment.min.js"></script>
   </head>
   <body>
-    <div id="annotations"></div>
+    <div id="oligrapher"></div>
     <script>
-      var root = document.getElementById('annotations');
+      var root = document.getElementById('oligrapher');
       root.style.height = window.innerHeight - 120 + "px";
 
       var data = <%- JSON.stringify(map) %>;
@@ -27,20 +23,15 @@
       var source = GoogleSheetDataSource(nodesUrl, edgesUrl);
       source.name = "TTIP network data";
 
-      var isEditor = false;
-
-      var oliAnnotations = new OligrapherAnnotations({
-        domRoot: root,
-        oligrapher: Oligrapher,
-        title: data.title,
-        graphData: data.graph,
-        annotationsData: data.annotations,
+      var oli2 = new Oligrapher({
+        root: root,
+        data: data,
+        isEditor: false,
+        isLocked: false,
+        dataSource: source,
         user: { name: data.user.name },
         date: moment(data.created_at).format('MMMM D, YYYY'),
-        startIndex: 0,
-        isEditor: isEditor,
-        editor: OligrapherEditor,
-        dataSource: source,
+        startAnnotation: 0,
         links: [
           { text: "home", url: "/", target: "_self" },
           <% if (isOwner) { %>
@@ -48,6 +39,7 @@
           <% } %>
         ],
         <% if (isOwner) { %>
+        showSaveButton: true,
         onSave: function(data) { 
           if (!data.title) {
             alert("You must give this map a title before saving.");
@@ -63,9 +55,9 @@
             },
             contentType: 'application/json',
             data: JSON.stringify(data),
-            success: function(resp) {
+            success: function(response) {
               alert("Map was successfully saved.");
-              console.log(resp);
+              console.log(response);
             },
             error: function(resp) {
               alert("Couldn't save map!");
@@ -76,8 +68,14 @@
         <% } %>
       });
 
+      var isEditor = false;
+
       $('#editLink').on('click', function() {
-        oliAnnotations.toggleEditor();
+        isEditor = !isEditor;
+        oli2.update({ 
+          isEditor: isEditor,
+          viewOnlyHighlighted: !isEditor
+        });
       });
     </script>
   </body>

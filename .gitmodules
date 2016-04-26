@@ -1,0 +1,6 @@
+[submodule "ui/oligrapher/oligrapher2"]
+	path = ui/oligrapher/oligrapher2
+	url = https://github.com/skomputer/oligrapher2
+[submodule "ui/oligrapher2"]
+	path = ui/oligrapher2
+	url = https://github.com/skomputer/oligrapher2

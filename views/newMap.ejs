@@ -4,20 +4,16 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8"/><meta charset="UTF-8">
     <title>Oligrapher 2</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="/oligrapher/oligrapher.css" rel="stylesheet"/>
-    <link href="/oligrapher/oligrapher.editor.css" rel="stylesheet"/>
-    <link href="/oligrapher/oligrapher.annotations.css" rel="stylesheet"/>
-    <script src="/oligrapher/oligrapher.min.js"></script>
-    <script src="/oligrapher/oligrapher.editor.min.js"></script>
-    <script src="/oligrapher/oligrapher.annotations.min.js"></script>
+    <link href="/style.css" rel="stylesheet"/>
+    <script src="/oligrapher2/build/oligrapher.min.js"></script>
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="/oligrapher/GoogleSheetDataSource.js"></script>
     <script src="/moment.min.js"></script>
   </head>
   <body>
-    <div id="annotations"></div>
+    <div id="oligrapher"></div>
     <script>
-      var root = document.getElementById('annotations');
+      var root = document.getElementById('oligrapher');
       root.style.height = window.innerHeight - 120 + "px";
 
       var nodesUrl = 'https://docs.google.com/spreadsheets/d/1BY_puUyDz9wGuM_QG0v85LDQ1f42qUn36FqUUIYQrl4/pub?gid=862456579&single=true&output=csv';
@@ -25,13 +21,14 @@
       var source = GoogleSheetDataSource(nodesUrl, edgesUrl);
       source.name = "TTIP network data";
 
-      var oliAnnotations = new OligrapherAnnotations({
-        domRoot: root,
-        oligrapher: Oligrapher,
-        startIndex: 0,
+      var oli2 = new Oligrapher({
+        root: root,
         isEditor: true,
-        editor: OligrapherEditor,
+        isLocked: false,
         dataSource: source,
+        startAnnotation: 0,
+        viewOnlyHighlighted: false,
+        showSaveButton: true,
         onSave: function(data) { 
           if (!data.title) {
             alert("You must give this map a title before saving.");
@@ -47,9 +44,10 @@
             },
             contentType: 'application/json',
             data: JSON.stringify(data),
-            success: function(resp) {
+            success: function(response) {
               alert("Map was successfully saved.");
-              console.log(resp);
+              window.location = "/maps/" + response.id;
+              console.log(response);
             },
             error: function(resp) {
               alert("Couldn't save map!");
@@ -57,10 +55,6 @@
             }
           });
         }
-      });
-
-      $('#editLink').on('click', function() {
-        oliAnnotations.toggleEditor();
       });
     </script>
   </body>
